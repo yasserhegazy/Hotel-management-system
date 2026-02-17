@@ -15,7 +15,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \App\Services\ModuleGenerator\Contracts\FileSystemInterface::class,
+            \App\Services\ModuleGenerator\FileSystemAdapter::class
+        );
+
+        $this->app->singleton(\App\Services\ModuleGenerator\ModuleStructure::class);
+        $this->app->singleton(\App\Services\ModuleGenerator\Templates\TemplateFactory::class);
     }
 
     /**
