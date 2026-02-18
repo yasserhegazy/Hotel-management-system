@@ -1,3 +1,1 @@
 <?php
-
-// Tenants module helpers

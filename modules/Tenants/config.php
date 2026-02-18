@@ -1,5 +1,3 @@
 <?php
 
-return [
-    // Tenants module configuration
-];
+return [];
