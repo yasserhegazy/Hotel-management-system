@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Stancl\JobPipeline\JobPipeline;
+use Stancl\Tenancy\DatabaseConfig;
 use Stancl\Tenancy\Events;
 use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
@@ -94,7 +95,10 @@ class TenancyServiceProvider extends ServiceProvider
 
     public function register()
     {
-        //
+        // Configure database naming to use tenant slug
+        DatabaseConfig::generateDatabaseNamesUsing(function ($tenant) {
+            return $tenant->slug;
+        });
     }
 
     public function boot()
