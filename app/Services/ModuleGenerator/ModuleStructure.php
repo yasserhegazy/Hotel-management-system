@@ -5,9 +5,9 @@ namespace App\Services\ModuleGenerator;
 class ModuleStructure
 {
     private array $directories = [
-        'Database/factories',
+        'Database/Factories',
         'Database/migrations',
-        'Database/seeders',
+        'Database/Seeders',
         'Domain/DTOs',
         'Domain/Models',
         'Domain/Repositories',
