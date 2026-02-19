@@ -33,7 +33,10 @@
             "Modules\\": "modules/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "exclude-from-classmap": [
+            "**/Database/migrations/**"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
