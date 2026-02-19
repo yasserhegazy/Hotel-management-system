@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Hash;
 
 class RegisterUserService
 {
-    public function handel(array $data): User
+    public function handle(array $data): User
     {
         return User::create([
             'first_name' => $data['first_name'],
