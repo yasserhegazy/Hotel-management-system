@@ -15,7 +15,7 @@ class RegisterUserService
             'email' => $data['email'],
             'phone' => $data['phone'] ?? null,
             'password' => Hash::make($data['password']),
-            'preferred_language' => 'en',
+            'preferred_language' => $data['preferred_language'] ?? 'en',
         ]);
     }
 }
