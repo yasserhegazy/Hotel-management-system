@@ -27,8 +27,8 @@ return new class extends Migration
             $table->string('preferred_language', 8)
                 ->default('en');
 
-//            $table->tinyInteger('is_guest')
-//                ->default(0);
+            //            $table->tinyInteger('is_guest')
+            //                ->default(0);
 
             $table->timestamp('last_login_at')->nullable();
 
