@@ -28,9 +28,10 @@ class RegisterController extends Controller
             // Auto login (Sanctum session-based)
             Auth::login($user);
 
-            return (new UserResource($user))
-                ->response()
-                ->setStatusCode(201);
+            return response()->json(
+                (new UserResource($user))->resolve(),
+                201
+            );
 
         } catch (\Throwable $e) {
             DB::rollBack();

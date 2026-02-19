@@ -24,6 +24,9 @@ class AuthServiceProvider extends ServiceProvider
         // Load migrations
         $this->loadMigrationsFrom(__DIR__.'/../Database/migrations');
 
+        // Load routes
+        $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
+
         // Merge config
         $this->mergeConfigFrom(
             __DIR__.'/../config.php',
