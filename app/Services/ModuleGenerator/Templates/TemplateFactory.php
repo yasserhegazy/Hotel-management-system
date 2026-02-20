@@ -29,34 +29,14 @@ use Illuminate\Support\ServiceProvider;
 
 class {$moduleName}ServiceProvider extends ServiceProvider
 {
-    /**
-     * Register services.
-     */
-    public function register(): void
-    {
-        // Register bindings in the container
-        // Example:
-        // \$this->app->bind(YourInterface::class, YourImplementation::class);
-    }
+    public function register(): void {}
 
-    /**
-     * Bootstrap services.
-     */
     public function boot(): void
     {
-        // Load routes
         \$this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
-
-        // Load migrations
         \$this->loadMigrationsFrom(__DIR__.'/../Database/migrations');
+        \$this->mergeConfigFrom(__DIR__.'/../config.php', '{$configKey}');
 
-        // Merge config
-        \$this->mergeConfigFrom(
-            __DIR__.'/../config.php',
-            '{$configKey}'
-        );
-
-        // Load helpers
         if (file_exists(__DIR__.'/../helpers.php')) {
             require_once __DIR__.'/../helpers.php';
         }
@@ -68,22 +48,18 @@ PHP;
 
     private function getConfigTemplate(string $moduleName): string
     {
-        return <<<PHP
+        return <<<'PHP'
 <?php
 
-return [
-    // {$moduleName} module configuration
-];
+return [];
 
 PHP;
     }
 
     private function getHelpersTemplate(string $moduleName): string
     {
-        return <<<PHP
+        return <<<'PHP'
 <?php
-
-// {$moduleName} module helpers
 
 PHP;
     }
@@ -98,9 +74,7 @@ PHP;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('{$routePrefix}')->group(function () {
-    // Define your {$moduleName} routes here
-    // Example:
-    // Route::get('/', [YourController::class, 'index']);
+    //
 });
 
 PHP;
