@@ -15,18 +15,18 @@ class UserRegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name'         => ['required', 'string', 'max:255'],
-            'last_name'          => ['required', 'string', 'max:255'],
-            'email'              => [
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => [
                 'required',
                 'string',
                 'email',
                 'max:255',
                 Rule::unique('users', 'email'),
             ],
-            'phone'              => ['nullable', 'string', 'max:32'],
-            'password'           => ['required', 'string', 'min:8', 'confirmed'],
-            'preferred_language' => ['nullable', 'string', 'max:10'],
+            'phone' => ['nullable', 'string', 'max:32'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'preferred_language' => ['sometimes', 'string', 'max:10'],
         ];
     }
 }

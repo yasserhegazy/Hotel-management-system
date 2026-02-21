@@ -11,12 +11,13 @@ use Modules\Auth\Http\Resources\UserResource;
 class RegisterController extends Controller
 {
     public function __construct(
-        private RegisterUserService $registerUserService
+        private readonly RegisterUserService $registerUserService
     ) {}
 
     public function __invoke(UserRegisterRequest $request): JsonResponse
     {
         $user = $this->registerUserService->handle($request->validated());
+        $user->refresh();
 
         return response()->json(
             (new UserResource($user))->resolve(),
