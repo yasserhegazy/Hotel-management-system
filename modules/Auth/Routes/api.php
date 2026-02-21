@@ -1,9 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Auth\Http\Controllers\Api\v1\RegisterController;
 
-Route::prefix('auths')->group(function () {
-    // Define your Auth routes here
-    // Example:
-    // Route::get('/', [YourController::class, 'index']);
+Route::prefix('auth')->group(function () {
+    Route::post('/register', RegisterController::class)->name('auth.register');
 });

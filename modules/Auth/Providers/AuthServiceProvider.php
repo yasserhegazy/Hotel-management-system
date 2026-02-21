@@ -21,11 +21,11 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Load routes
-        $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
-
         // Load migrations
         $this->loadMigrationsFrom(__DIR__.'/../Database/migrations');
+
+        // Load routes
+        $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
 
         // Merge config
         $this->mergeConfigFrom(
