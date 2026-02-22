@@ -15,6 +15,7 @@
         "laravel/sanctum": "*",
         "laravel/tinker": "^2.10.1",
         "laravel/wayfinder": "^0.1.11",
+        "pragmarx/countries": "^1.0",
         "stancl/tenancy": "*"
     },
     "require-dev": {
