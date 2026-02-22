@@ -23,26 +23,47 @@ class TenantFactory extends Factory
         return [
             'name' => $name,
             'email' => fake()->unique()->safeEmail(),
+            'phone' => fake()->unique()->e164PhoneNumber(),
             'slug' => $slug,
             'database_name' => null,
             'owner_id' => 1,
             'subscription_id' => null,
             'location_id' => 1,
-            'status' => 'active',
+            'status' => Tenant::STATUS_ACTIVE,
+            'email_verified_at' => now(),
         ];
+    }
+
+    public function pendingVerification(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => Tenant::STATUS_PENDING_VERIFICATION,
+            'email_verified_at' => null,
+            'owner_id' => null,
+        ]);
+    }
+
+    public function verified(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => Tenant::STATUS_VERIFIED,
+            'email_verified_at' => now(),
+            'owner_id' => null,
+        ]);
     }
 
     public function active(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'active',
+            'status' => Tenant::STATUS_ACTIVE,
+            'email_verified_at' => now(),
         ]);
     }
 
     public function disabled(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'disabled',
+            'status' => Tenant::STATUS_DISABLED,
         ]);
     }
 
