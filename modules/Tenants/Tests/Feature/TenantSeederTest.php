@@ -2,13 +2,10 @@
 
 declare(strict_types=1);
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Modules\Tenants\Database\Seeders\TenantSeeder;
 use Modules\Tenants\Domain\Models\Tenant;
 use Stancl\Tenancy\Events\TenantCreated;
-
-uses(Tests\TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
     // Prevent stancl/tenancy from trying to provision tenant databases during tests
