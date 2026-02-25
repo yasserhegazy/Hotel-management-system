@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use InvalidArgumentException;
 use Modules\Tenants\Domain\Exceptions\TenantAlreadyVerifiedException;
 use Modules\Tenants\Domain\Services\VerifyEmailService;
+use Modules\Tenants\Http\Requests\VerifyEmailRequest;
 
 class VerifyEmailController extends Controller
 {
@@ -17,11 +18,9 @@ class VerifyEmailController extends Controller
         private VerifyEmailService $verifyEmailService
     ) {}
 
-    public function __invoke(string $token): JsonResponse
+    public function __invoke(VerifyEmailRequest $request): JsonResponse
     {
-        if (! preg_match('/^[a-f0-9]{64}$/', $token)) {
-            return response()->json(['error' => 'Invalid or expired token.'], 400);
-        }
+        $token = $request->validated('token');
 
         try {
             $result = $this->verifyEmailService->handle($token);
