@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Mail;
+use Modules\Tenants\Domain\Enums\TenantStatus;
 use Modules\Tenants\Mail\TenantVerificationMail;
 
 beforeEach(function () {
@@ -128,7 +129,7 @@ describe('GET /api/v1/hotels/verify/{token}', function () {
         // This is a placeholder that you'll need to implement
         $tenant = createPendingTenant([
             'email' => 'hotel@example.com',
-            'status' => 'pending_verification',
+            'status' => TenantStatus::PendingVerification,
         ]);
         $token = $tenant->verification_token;
 

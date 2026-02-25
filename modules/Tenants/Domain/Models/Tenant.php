@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\Tenants\Database\Factories\TenantFactory;
+use Modules\Tenants\Domain\Enums\TenantStatus;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Models\Domain;
@@ -19,14 +20,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     use HasDatabase;
     use HasFactory;
 
-    // Status constants
-    const STATUS_PENDING_VERIFICATION = 'pending_verification';
 
-    const STATUS_VERIFIED = 'verified';
-
-    const STATUS_ACTIVE = 'active';
-
-    const STATUS_DISABLED = 'disabled';
 
     protected $fillable = [
         'name',
@@ -68,7 +62,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         'owner_id' => 'integer',
         'subscription_id' => 'integer',
         'location_id' => 'integer',
-        'status' => 'string',
+        'status' => TenantStatus::class,
         'email_verified_at' => 'datetime',
         'verification_expires_at' => 'datetime',
     ];
@@ -91,22 +85,22 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     // Status check methods
     public function isActive(): bool
     {
-        return $this->status === self::STATUS_ACTIVE;
+        return $this->status === TenantStatus::Active;
     }
 
     public function isDisabled(): bool
     {
-        return $this->status === self::STATUS_DISABLED;
+        return $this->status === TenantStatus::Disabled;
     }
 
     public function isPendingVerification(): bool
     {
-        return $this->status === self::STATUS_PENDING_VERIFICATION;
+        return $this->status === TenantStatus::PendingVerification;
     }
 
     public function isVerified(): bool
     {
-        return $this->status === self::STATUS_VERIFIED;
+        return $this->status === TenantStatus::Verified;
     }
 
     // Email verification methods
@@ -119,7 +113,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     {
         return $this->forceFill([
             'email_verified_at' => $this->freshTimestamp(),
-            'status' => self::STATUS_VERIFIED,
+            'status' => TenantStatus::Verified,
         ])->save();
     }
 
