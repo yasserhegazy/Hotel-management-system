@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Modules\Tenants\Domain\DTOs\SetPasswordDTO;
+use Modules\Tenants\Domain\Enums\TenantStatus;
 use Modules\Tenants\Domain\Exceptions\TenantNotVerifiedException;
 use Modules\Tenants\Domain\Models\Tenant;
 use Modules\Tenants\Domain\Repositories\TenantRepository;
@@ -66,7 +67,7 @@ class SetPasswordService
 
             $updatedTenant = $this->tenantRepository->update($tenant, [
                 'owner_id' => $user->id,
-                'status' => Tenant::STATUS_ACTIVE,
+                'status' => TenantStatus::Active,
                 'verification_token' => null,
                 'verification_expires_at' => null,
             ]);

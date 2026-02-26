@@ -23,4 +23,5 @@ Route::prefix('v1/hotels')->group(function () {
         Route::patch('/{hotel_id}', [TenantController::class, 'update'])
             ->name('api.v1.hotels.update');
     });
+
 });

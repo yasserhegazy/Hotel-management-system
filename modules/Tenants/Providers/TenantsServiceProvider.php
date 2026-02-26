@@ -14,8 +14,8 @@ class TenantsServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../Resources/views', 'tenants');
         $this->mergeConfigFrom(__DIR__.'/../config.php', 'tenants');
 
-        if (app()->environment('testing') && file_exists(__DIR__.'/../helpers.php')) {
-            require_once __DIR__.'/../helpers.php';
+        if (app()->environment('testing') && file_exists(__DIR__.'/../helpers.testing.php')) {
+            require_once __DIR__.'/../helpers.testing.php';
         }
     }
 }

@@ -6,6 +6,7 @@ namespace Modules\Tenants\Domain\Services;
 
 use Illuminate\Support\Facades\Mail;
 use Modules\Tenants\Domain\DTOs\InitRegistrationDTO;
+use Modules\Tenants\Domain\Enums\TenantStatus;
 use Modules\Tenants\Domain\Models\Tenant;
 use Modules\Tenants\Domain\Repositories\TenantRepository;
 use Modules\Tenants\Mail\TenantVerificationMail;
@@ -28,7 +29,7 @@ class InitRegistrationService
             'phone' => $dto->phone,
             'slug' => $this->tenantRepository->generateUniqueSlug($dto->name),
             'location_id' => $location->id,
-            'status' => Tenant::STATUS_PENDING_VERIFICATION,
+            'status' => TenantStatus::PendingVerification,
             'email_verified_at' => null,
             'owner_id' => null,
             'verification_token' => Tenant::hashToken($plainToken),

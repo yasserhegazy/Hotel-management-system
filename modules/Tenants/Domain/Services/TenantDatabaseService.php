@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Tenants\Domain\Services;
 
+use Illuminate\Support\Facades\Log;
 use Modules\Tenants\Domain\Models\Tenant;
 use Stancl\Tenancy\Exceptions\TenantDatabaseAlreadyExistsException;
 use Stancl\Tenancy\Jobs\CreateDatabase;
@@ -28,6 +29,10 @@ class TenantDatabaseService
         } catch (TenantDatabaseAlreadyExistsException $e) {
             // Database already exists - this is OK, proceed with migrations
             // This can happen if a previous registration attempt was interrupted
+            Log::warning('Tenant database already exists; skipping creation.', [
+                'tenant_id' => $tenant->id,
+                'exception' => $e->getMessage(),
+            ]);
         }
 
         dispatch_sync(new MigrateDatabase($tenant));

@@ -6,6 +6,7 @@ namespace Modules\Tenants\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+use Modules\Tenants\Domain\Enums\TenantStatus;
 use Modules\Tenants\Domain\Models\Tenant;
 
 /**
@@ -29,7 +30,7 @@ class TenantFactory extends Factory
             'owner_id' => 1,
             'subscription_id' => null,
             'location_id' => 1,
-            'status' => Tenant::STATUS_ACTIVE,
+            'status' => TenantStatus::Active,
             'email_verified_at' => now(),
         ];
     }
@@ -37,7 +38,7 @@ class TenantFactory extends Factory
     public function pendingVerification(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => Tenant::STATUS_PENDING_VERIFICATION,
+            'status' => TenantStatus::PendingVerification,
             'email_verified_at' => null,
             'owner_id' => null,
         ]);
@@ -46,7 +47,7 @@ class TenantFactory extends Factory
     public function verified(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => Tenant::STATUS_VERIFIED,
+            'status' => TenantStatus::Verified,
             'email_verified_at' => now(),
             'owner_id' => null,
         ]);
@@ -55,7 +56,7 @@ class TenantFactory extends Factory
     public function active(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => Tenant::STATUS_ACTIVE,
+            'status' => TenantStatus::Active,
             'email_verified_at' => now(),
         ]);
     }
@@ -63,7 +64,7 @@ class TenantFactory extends Factory
     public function disabled(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => Tenant::STATUS_DISABLED,
+            'status' => TenantStatus::Disabled,
         ]);
     }
 
