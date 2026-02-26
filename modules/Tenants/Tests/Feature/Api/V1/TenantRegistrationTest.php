@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Mail;
+use Modules\Tenants\Domain\Enums\TenantStatus;
+use Modules\Tenants\Mail\TenantVerificationMail;
 
 beforeEach(function () {
     Mail::fake();
@@ -26,9 +28,9 @@ describe('POST /api/v1/hotels/init-register', function () {
             ->assertJson(['message' => 'Verification email sent to hotel email.'])
             ->assertJsonStructure(['message', 'tenant_id']);
 
-        expect($response->json('tenant_id'))->toBeInt();
-        
-        Mail::assertSent(fn($mail) => $mail->hasTo('contact@grandhotelplaza.com'));
+        expect($response->json('tenant_id'))->toBeString();
+
+        Mail::assertQueued(TenantVerificationMail::class, fn ($mail) => $mail->hasTo('contact@grandhotelplaza.com'));
     });
 
     it('validates required fields', function ($field, $payload) {
@@ -127,7 +129,7 @@ describe('GET /api/v1/hotels/verify/{token}', function () {
         // This is a placeholder that you'll need to implement
         $tenant = createPendingTenant([
             'email' => 'hotel@example.com',
-            'status' => 'pending_verification',
+            'status' => TenantStatus::PendingVerification,
         ]);
         $token = $tenant->verification_token;
 
@@ -147,7 +149,7 @@ describe('GET /api/v1/hotels/verify/{token}', function () {
             ->assertJsonStructure(['error']);
     })->with([
         'invalid token' => ['invalid-token-xyz', 400],
-        'non-existent token' => ['non-existent-token', 404],
+        'non-existent token' => [str_repeat('a', 64), 404],
     ]);
 });
 
