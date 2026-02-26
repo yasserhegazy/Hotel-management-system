@@ -7,7 +7,7 @@ describe('POST /auth/login', function () {
     it('logs in user with valid credentials', function () {
         $user = User::factory()->create([
             'email' => 'john.doe@example.com',
-            'password' => Hash::make('SecurePassword123!'),
+            'password' => ('SecurePassword123!'),
         ]);
 
         $response = $this->postJson('/auth/login', [
@@ -45,7 +45,7 @@ describe('POST /auth/login', function () {
 
         $response->assertUnauthorized()
             ->assertJson(['error' => 'Invalid credentials.']);
-        
+
         $this->assertGuest();
     })->with([
         'wrong email' => ['wrong@example.com', 'SecurePassword123!'],

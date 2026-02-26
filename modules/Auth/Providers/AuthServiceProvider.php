@@ -2,6 +2,7 @@
 
 namespace Modules\Auth\Providers;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -25,7 +26,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../Database/migrations');
 
         // Load routes
-        $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
+        Route::middleware('api')->group(__DIR__.'/../Routes/api.php');
 
         // Merge config
         $this->mergeConfigFrom(
