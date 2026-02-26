@@ -81,8 +81,12 @@ describe('PATCH /api/v1/hotels/{hotel_id}', function () {
     ]);
 });
 
-// Helper function - implement based on your Tenant model
+// Helper function
 function createTenant(array $attributes = [])
 {
-    // return Tenant::factory()->create($attributes);
+    $location = \Modules\Tenants\Domain\Models\Location::factory()->create();
+
+    return \Modules\Tenants\Domain\Models\Tenant::factory()->create(array_merge([
+        'location_id' => $location->id,
+    ], $attributes));
 }

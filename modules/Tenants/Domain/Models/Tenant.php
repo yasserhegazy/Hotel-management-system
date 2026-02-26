@@ -9,10 +9,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\Tenants\Database\Factories\TenantFactory;
-use Modules\Tenants\Domain\Enums\TenantStatus;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Models\Domain;
+use Modules\Tenants\Domain\Enums\TenantStatus;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
 class Tenant extends BaseTenant implements TenantWithDatabase
@@ -20,12 +20,12 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     use HasDatabase;
     use HasFactory;
 
-
-
     protected $fillable = [
         'name',
         'email',
         'phone',
+        'description',
+        'profile_image_path',
         'slug',
         'database_name',
         'owner_id',
@@ -44,6 +44,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'name',
             'email',
             'phone',
+            'description',
+            'profile_image_path',
             'slug',
             'database_name',
             'owner_id',
