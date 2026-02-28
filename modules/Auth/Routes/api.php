@@ -14,7 +14,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', LoginController::class)->name('auth.login');
 
     Route::post('/forgot-password', ForgotPasswordController::class)->name('auth.forgot-password');
-    Route::post('/reset-password', ResetPasswordController::class)->name('auth.reset-password');
+    Route::post('/reset-password', ResetPasswordController::class)->name('password.reset');
 
     // Protected Routes
     Route::middleware('auth:sanctum')->group(function () {
