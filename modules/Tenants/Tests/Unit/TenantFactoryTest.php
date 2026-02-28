@@ -19,7 +19,7 @@ describe('basic factory creation', function () {
             ->and($tenant->name)->toBe('Test Hotel')
             ->and($tenant->email)->toBe('test@hotel.com')
             ->and($tenant->slug)->toBe('test-hotel')
-            ->and($tenant->status)->toBe('active');
+            ->and($tenant->status->value)->toBe('active');
     });
 
     it('creates multiple tenants with unique emails and slugs', function () {
@@ -35,7 +35,7 @@ describe('status states', function () {
     it('creates an active tenant via ->active()', function () {
         $tenant = Tenant::factory()->active()->create();
 
-        expect($tenant->status)->toBe('active')
+        expect($tenant->status->value)->toBe('active')
             ->and($tenant->isActive())->toBeTrue()
             ->and($tenant->isDisabled())->toBeFalse();
     });
@@ -43,7 +43,7 @@ describe('status states', function () {
     it('creates a disabled tenant via ->disabled()', function () {
         $tenant = Tenant::factory()->disabled()->create();
 
-        expect($tenant->status)->toBe('disabled')
+        expect($tenant->status->value)->toBe('disabled')
             ->and($tenant->isDisabled())->toBeTrue()
             ->and($tenant->isActive())->toBeFalse();
     });

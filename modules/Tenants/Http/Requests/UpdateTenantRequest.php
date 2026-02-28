@@ -6,6 +6,7 @@ namespace Modules\Tenants\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Modules\Tenants\Domain\Models\Tenant;
 
 class UpdateTenantRequest extends FormRequest
@@ -24,6 +25,17 @@ class UpdateTenantRequest extends FormRequest
     public function authorize(): bool
     {
         return $this->tenant->owner_id === $this->user()->id;
+    }
+
+    protected function failedAuthorization(): void
+    {
+        throw new ValidationException(
+            validator: validator([], []),
+            response: response()->json(
+                ['error' => 'Not authorized to update this tenant.'],
+                403
+            )
+        );
     }
 
     public function tenant(): Tenant

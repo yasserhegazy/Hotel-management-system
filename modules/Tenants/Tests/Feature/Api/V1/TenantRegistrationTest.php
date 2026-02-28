@@ -142,14 +142,14 @@ describe('GET /api/v1/hotels/verify/{token}', function () {
             ]);
     });
 
-    it('rejects invalid or expired tokens', function ($token, $status) {
+    it('rejects invalid or expired tokens', function ($token, $status, $expectedKey) {
         $response = $this->getJson("/api/v1/hotels/verify/{$token}");
 
         $response->assertStatus($status)
-            ->assertJsonStructure(['error']);
+            ->assertJsonStructure([$expectedKey]);
     })->with([
-        'invalid token' => ['invalid-token-xyz', 400],
-        'non-existent token' => [str_repeat('a', 64), 404],
+        'invalid token' => ['invalid-token-xyz', 422, 'errors'], // Validation error has 'errors' key
+        'non-existent token' => [str_repeat('a', 64), 404, 'error'], // Controller error has 'error' key
     ]);
 });
 

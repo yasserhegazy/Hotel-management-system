@@ -3,11 +3,10 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Hash;
+
 /**
  * @method static create(array $data)
  */
@@ -27,13 +26,6 @@ class User extends Authenticatable
         'last_login_at',
 
     ];
-
-    protected function password(): Attribute
-    {
-        return Attribute::make(
-            set: fn ($value) => Hash::make($value),
-        );
-    }
 
     /**
      * The attributes that should be hidden for serialization.
