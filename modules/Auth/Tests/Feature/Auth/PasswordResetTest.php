@@ -12,6 +12,8 @@ beforeEach(function () {
 
 describe('POST /auth/forgot-password', function () {
     it('returns success & notifies the user when email exists', function () {
+        Notification::fake();
+
         $user = User::factory()->create(['email' => 'john@example.com']);
 
         $response = $this->postJson('/auth/forgot-password', [
@@ -21,10 +23,11 @@ describe('POST /auth/forgot-password', function () {
         $response->assertOk()
             ->assertJson(['status' => Password::RESET_LINK_SENT]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification, $channels) use ($user) {
-            // The email in the notification should match the user’s email
-            return $notification->toMail($user)->to[0]['address'] === $user->email;
-        });
+        // 2. This built-in assertion automatically checks that it was sent to THIS $user
+        Notification::assertSentTo(
+            $user,
+            ResetPassword::class
+        );
     });
 
     it('responds with success even if email does not exist', function () {
