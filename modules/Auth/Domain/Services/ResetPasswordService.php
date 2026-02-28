@@ -20,7 +20,8 @@ class ResetPasswordService
             $data,
             function ($user, $password) {
                 $user->forceFill([
-                    'password' => $password,
+                    // Explicit hashing for clarity and consistency with Laravel's controllers
+                    'password' => Hash::make($password),
                 ])->setRememberToken(Str::random(60));
 
                 $user->save();
