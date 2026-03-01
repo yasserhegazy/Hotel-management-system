@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-use App\Notifications\ResetPasswordNotification;
 use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -31,12 +29,6 @@ class User extends Authenticatable
 
     ];
 
-    protected function password(): Attribute
-    {
-        return Attribute::make(
-            set: fn ($value) => Hash::make($value),
-        );
-    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -62,12 +54,12 @@ class User extends Authenticatable
     }
 
     /**
-     * Override the default password reset notification to use a custom template.
+     * Override the default password reset notification to use Laravel's built-in template with custom email body.
      */
     public function sendPasswordResetNotification($token): void
     {
         try {
-            $this->notify(new ResetPasswordNotification($token));
+            $this->notify(new ResetPassword($token));
         } catch (\Throwable $e) {
             // Log the exception so we can debug notification failures
             Log::error('Failed to send password reset notification', [
