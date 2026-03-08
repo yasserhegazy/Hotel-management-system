@@ -2,14 +2,20 @@
 
 declare(strict_types=1);
 
+use App\Models\User;
 use Illuminate\Support\Facades\Event;
 use Modules\Tenants\Database\Seeders\TenantSeeder;
+use Modules\Tenants\Domain\Models\Location;
 use Modules\Tenants\Domain\Models\Tenant;
 use Stancl\Tenancy\Events\TenantCreated;
 
 beforeEach(function () {
     // Prevent stancl/tenancy from trying to provision tenant databases during tests
     Event::fake([TenantCreated::class]);
+
+    // Create required foreign key records
+    User::factory()->create(['id' => 1]);
+    Location::factory()->create(['id' => 1]);
 
     (new TenantSeeder)->run();
 });
@@ -56,7 +62,7 @@ describe('data integrity', function () {
                 ->and($tenant->slug)->not->toBeNull()
                 ->and($tenant->owner_id)->toBe(1)
                 ->and($tenant->location_id)->toBe(1)
-                ->and($tenant->status)->toBeIn(['active', 'disabled']);
+                ->and($tenant->status->value)->toBeIn(['active', 'disabled']);
         });
     });
 });
@@ -68,7 +74,7 @@ describe('specific tenant data', function () {
         expect($grandHotel)->not->toBeNull()
             ->and($grandHotel->name)->toBe('Grand Hotel')
             ->and($grandHotel->email)->toBe('contact@grandhotel.example.com')
-            ->and($grandHotel->status)->toBe('active')
+            ->and($grandHotel->status->value)->toBe('active')
             ->and($grandHotel->owner_id)->toBe(1)
             ->and($grandHotel->location_id)->toBe(1);
     });
@@ -86,7 +92,7 @@ describe('specific tenant data', function () {
         $oceanView = Tenant::where('slug', 'ocean-view')->first();
 
         expect($oceanView)->not->toBeNull()
-            ->and($oceanView->status)->toBe('disabled')
+            ->and($oceanView->status->value)->toBe('disabled')
             ->and($oceanView->isDisabled())->toBeTrue()
             ->and($oceanView->isActive())->toBeFalse();
     });

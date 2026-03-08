@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Modules\Tenants\Domain\Enums\TenantStatus;
 use Modules\Tenants\Domain\Models\Tenant;
 
 uses(Tests\TestCase::class, RefreshDatabase::class);
@@ -19,7 +21,7 @@ describe('basic factory creation', function () {
             ->and($tenant->name)->toBe('Test Hotel')
             ->and($tenant->email)->toBe('test@hotel.com')
             ->and($tenant->slug)->toBe('test-hotel')
-            ->and($tenant->status)->toBe(\Modules\Tenants\Domain\Enums\TenantStatus::Active);
+            ->and($tenant->status)->toBe(TenantStatus::Active);
     });
 
     it('creates multiple tenants with unique emails and slugs', function () {
@@ -35,7 +37,7 @@ describe('status states', function () {
     it('creates an active tenant via ->active()', function () {
         $tenant = Tenant::factory()->active()->create();
 
-        expect($tenant->status)->toBe(\Modules\Tenants\Domain\Enums\TenantStatus::Active)
+        expect($tenant->status)->toBe(TenantStatus::Active)
             ->and($tenant->isActive())->toBeTrue()
             ->and($tenant->isDisabled())->toBeFalse();
     });
@@ -43,7 +45,7 @@ describe('status states', function () {
     it('creates a disabled tenant via ->disabled()', function () {
         $tenant = Tenant::factory()->disabled()->create();
 
-        expect($tenant->status)->toBe(\Modules\Tenants\Domain\Enums\TenantStatus::Disabled)
+        expect($tenant->status)->toBe(TenantStatus::Disabled)
             ->and($tenant->isDisabled())->toBeTrue()
             ->and($tenant->isActive())->toBeFalse();
     });
@@ -89,13 +91,13 @@ describe('database uniqueness constraints', function () {
         Tenant::factory()->create(['email' => 'unique@test.com']);
 
         expect(fn () => Tenant::factory()->create(['email' => 'unique@test.com']))
-            ->toThrow(\Illuminate\Database\QueryException::class);
+            ->toThrow(QueryException::class);
     });
 
     it('rejects a duplicate slug', function () {
         Tenant::factory()->create(['slug' => 'unique-slug']);
 
         expect(fn () => Tenant::factory()->create(['slug' => 'unique-slug']))
-            ->toThrow(\Illuminate\Database\QueryException::class);
+            ->toThrow(QueryException::class);
     });
 });
