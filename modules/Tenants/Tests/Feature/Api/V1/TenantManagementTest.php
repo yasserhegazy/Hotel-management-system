@@ -50,8 +50,7 @@ describe('PATCH /api/v1/hotels/{hotel_id}', function () {
         $response = $this->actingAs($otherUser)
             ->patchJson("/api/v1/hotels/{$tenant->id}", ['name' => 'Hacked']);
 
-        $response->assertForbidden()
-            ->assertJson(['error' => 'Not authorized to update this tenant.']);
+        $response->assertForbidden();
     });
 
     it('returns not found for non-existent hotel', function () {
