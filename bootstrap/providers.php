@@ -5,4 +5,5 @@ return [
     Modules\Auth\Providers\AuthServiceProvider::class,
     Modules\Tenants\Providers\TenantsServiceProvider::class,
     App\Providers\TenancyServiceProvider::class,
+    Modules\Staff\Providers\StaffServiceProvider::class,
 ];
