@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Modules\Staff\Database\Factories\TenantUserFactory;
+use Spatie\Permission\Traits\HasRoles;
 
 class TenantUser extends Authenticatable
 {
     /** @use HasFactory<TenantUserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, HasRoles, Notifiable;
 
     protected $table = 'tenant_users';
 
