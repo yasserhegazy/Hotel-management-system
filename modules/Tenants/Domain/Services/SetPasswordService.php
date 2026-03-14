@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use Modules\Staff\Database\Seeders\RolesAndPermissionsSeeder;
+use Modules\Staff\Domain\Enums\StaffRole;
+use Modules\Staff\Domain\Models\TenantUser;
 use Modules\Tenants\Domain\DTOs\SetPasswordDTO;
 use Modules\Tenants\Domain\Enums\TenantStatus;
 use Modules\Tenants\Domain\Exceptions\TenantNotVerifiedException;
@@ -80,10 +83,39 @@ class SetPasswordService
 
         Auth::login($result['user']);
 
+        $this->createInitialAdmin($result['tenant'], $dto);
+
         Mail::to($tenant->email)->queue(
             new TenantWelcomeMail($result['tenant'], trim($dto->firstName.' '.$dto->lastName))
         );
 
         return $result;
+    }
+
+    /**
+     * Create the initial hotel admin TenantUser in the tenant database.
+     */
+    private function createInitialAdmin(Tenant $tenant, SetPasswordDTO $dto): void
+    {
+        $createAdmin = function () use ($tenant, $dto): void {
+            (new RolesAndPermissionsSeeder)->run();
+
+            $tenantUser = TenantUser::create([
+                'first_name' => $dto->firstName,
+                'last_name' => $dto->lastName,
+                'email' => $tenant->email,
+                'password' => $dto->password,
+                'is_active' => true,
+                'activated_at' => now(),
+            ]);
+
+            $tenantUser->assignRole(StaffRole::HotelAdmin);
+        };
+
+        if (app()->environment('testing')) {
+            $createAdmin();
+        } else {
+            $tenant->run($createAdmin);
+        }
     }
 }
