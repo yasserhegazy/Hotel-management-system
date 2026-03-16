@@ -23,6 +23,10 @@ pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in(__DIR__.'/../modules/Tenants/Tests/Feature');
 
+pest()->extend(Tests\TestCase::class)
+    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->in(__DIR__.'/../modules/Staff/Tests/Feature');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations
