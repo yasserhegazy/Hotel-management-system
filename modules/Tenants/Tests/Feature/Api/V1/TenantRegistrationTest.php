@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Mail;
+use Modules\Staff\Domain\Enums\StaffRole;
+use Modules\Staff\Domain\Models\TenantUser;
 use Modules\Tenants\Domain\Enums\TenantStatus;
 use Modules\Tenants\Mail\TenantVerificationMail;
 
@@ -175,6 +177,15 @@ describe('POST /api/v1/hotels/set-password', function () {
             ]);
 
         $this->assertAuthenticated();
+
+        // Verify initial admin TenantUser was created
+        $tenantUser = TenantUser::where('email', 'hotel@example.com')->first();
+        expect($tenantUser)->not->toBeNull()
+            ->and($tenantUser->first_name)->toBe('John')
+            ->and($tenantUser->last_name)->toBe('Doe')
+            ->and($tenantUser->is_active)->toBeTrue()
+            ->and($tenantUser->activated_at)->not->toBeNull()
+            ->and($tenantUser->hasRole(StaffRole::HotelAdmin))->toBeTrue();
     });
 
     it('validates required fields', function ($field, $payload) {
