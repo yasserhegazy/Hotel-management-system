@@ -20,8 +20,17 @@ class TenantController extends Controller
 
     public function show(Request $request): JsonResponse
     {
-        $tenant = Tenant::with('location')
-            ->findOrFail($request->user()->tenant_id);
+        $user = $request->user();
+
+        $tenantQuery = Tenant::with('location');
+
+        // Owner accounts (central users) manage their tenant via owner_id.
+        // Tenant users may expose a tenant_id in future module flows.
+        if (isset($user->tenant_id) && $user->tenant_id) {
+            $tenant = $tenantQuery->findOrFail($user->tenant_id);
+        } else {
+            $tenant = $tenantQuery->where('owner_id', $user->id)->firstOrFail();
+        }
 
         return response()->json(new TenantResource($tenant));
     }

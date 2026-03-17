@@ -1,22 +1,22 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Password;
 
 beforeEach(function () {
     Notification::fake();
 });
 
-describe('POST /auth/forgot-password', function () {
+describe('POST /api/auth/forgot-password', function () {
     it('returns success & notifies the user when email exists', function () {
         Notification::fake();
 
         $user = User::factory()->create(['email' => 'john@example.com']);
 
-        $response = $this->postJson('/auth/forgot-password', [
+        $response = $this->postJson('/api/auth/forgot-password', [
             'email' => $user->email,
         ]);
 
@@ -31,7 +31,7 @@ describe('POST /auth/forgot-password', function () {
     });
 
     it('responds with success even if email does not exist', function () {
-        $response = $this->postJson('/auth/forgot-password', [
+        $response = $this->postJson('/api/auth/forgot-password', [
             'email' => 'missing@example.com',
         ]);
 
@@ -42,7 +42,7 @@ describe('POST /auth/forgot-password', function () {
     });
 
     it('validates email format', function () {
-        $response = $this->postJson('/auth/forgot-password', [
+        $response = $this->postJson('/api/auth/forgot-password', [
             'email' => 'bad-format',
         ]);
 
@@ -51,7 +51,7 @@ describe('POST /auth/forgot-password', function () {
     });
 });
 
-describe('POST /auth/reset-password', function () {
+describe('POST /api/auth/reset-password', function () {
     it('resets password when email and token are valid', function () {
         $user = User::factory()->create([
             'email' => 'john@example.com',
@@ -64,7 +64,7 @@ describe('POST /auth/reset-password', function () {
 
         $token = Notification::sent($user, ResetPassword::class)->first()->token;
 
-        $response = $this->postJson('/auth/reset-password', [
+        $response = $this->postJson('/api/auth/reset-password', [
             'token' => $token,
             'email' => $user->email,
             'password' => 'NewPass123!',
@@ -79,7 +79,7 @@ describe('POST /auth/reset-password', function () {
     });
 
     it('validates required fields with correct email presence', function ($field, $payload) {
-        $response = $this->postJson('/auth/reset-password', $payload);
+        $response = $this->postJson('/api/auth/reset-password', $payload);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors($field);
@@ -110,7 +110,7 @@ describe('POST /auth/reset-password', function () {
     it('rejects invalid token even when email is provided', function () {
         $user = User::factory()->create(['email' => 'john@example.com']);
 
-        $response = $this->postJson('/auth/reset-password', [
+        $response = $this->postJson('/api/auth/reset-password', [
             'token' => 'not-a-real-token',
             'email' => $user->email,
             'password' => 'NewPass123!',
@@ -128,7 +128,7 @@ describe('POST /auth/reset-password', function () {
         $token = Notification::sent($user, ResetPassword::class)->first()->token;
 
         // Reset
-        $this->postJson('/auth/reset-password', [
+        $this->postJson('/api/auth/reset-password', [
             'token' => $token,
             'email' => $user->email,
             'password' => 'NewPass123!',
@@ -136,7 +136,7 @@ describe('POST /auth/reset-password', function () {
         ]);
 
         // Try login with email & new password
-        $loginResponse = $this->postJson('/auth/login', [
+        $loginResponse = $this->postJson('/api/auth/login', [
             'email' => $user->email,
             'password' => 'NewPass123!',
         ]);

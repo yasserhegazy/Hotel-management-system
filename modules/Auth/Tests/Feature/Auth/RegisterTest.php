@@ -2,9 +2,9 @@
 
 use App\Models\User;
 
-describe('POST /auth/register', function () {
+describe('POST /api/auth/register', function () {
     it('successfully registers new user', function () {
-        $response = $this->postJson('/auth/register', [
+        $response = $this->postJson('/api/auth/register', [
             'first_name' => 'John',
             'last_name' => 'Doe',
             'email' => 'john.doe@example.com',
@@ -32,7 +32,7 @@ describe('POST /auth/register', function () {
     });
 
     it('validates required fields', function ($field, $payload) {
-        $response = $this->postJson('/auth/register', $payload);
+        $response = $this->postJson('/api/auth/register', $payload);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors($field);
@@ -75,7 +75,7 @@ describe('POST /auth/register', function () {
     it('prevents duplicate email registration', function () {
         User::factory()->create(['email' => 'existing@example.com']);
 
-        $response = $this->postJson('/auth/register', [
+        $response = $this->postJson('/api/auth/register', [
             'first_name' => 'Jane',
             'last_name' => 'Doe',
             'email' => 'existing@example.com',
@@ -88,7 +88,7 @@ describe('POST /auth/register', function () {
     });
 
     it('hashes password before storing', function () {
-        $this->postJson('/auth/register', [
+        $this->postJson('/api/auth/register', [
             'first_name' => 'John',
             'last_name' => 'Doe',
             'email' => 'john@example.com',
@@ -97,13 +97,13 @@ describe('POST /auth/register', function () {
         ]);
 
         $user = User::where('email', 'john@example.com')->first();
-        
+
         expect($user->password)->not->toBe('SecurePassword123!');
         expect(password_verify('SecurePassword123!', $user->password))->toBeTrue();
     });
 
     it('authenticates user after registration', function () {
-        $response = $this->postJson('/auth/register', [
+        $response = $this->postJson('/api/auth/register', [
             'first_name' => 'John',
             'last_name' => 'Doe',
             'email' => 'john@example.com',
@@ -116,7 +116,7 @@ describe('POST /auth/register', function () {
     });
 
     it('sets default preferred_language to en when not provided', function () {
-        $response = $this->postJson('/auth/register', [
+        $response = $this->postJson('/api/auth/register', [
             'first_name' => 'John',
             'last_name' => 'Doe',
             'email' => 'john@example.com',

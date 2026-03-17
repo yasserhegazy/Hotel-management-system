@@ -2,19 +2,19 @@
 
 use App\Models\User;
 
-describe('POST /auth/logout', function () {
+describe('POST /api/auth/logout', function () {
     it('logs out authenticated user', function () {
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)
-            ->postJson('/auth/logout');
+            ->postJson('/api/auth/logout');
 
         $response->assertNoContent();
         $this->assertGuest();
     });
 
     it('requires authentication', function () {
-        $response = $this->postJson('/auth/logout');
+        $response = $this->postJson('/api/auth/logout');
 
         $response->assertUnauthorized();
     });
@@ -22,9 +22,9 @@ describe('POST /auth/logout', function () {
     it('prevents access to protected routes after logout', function () {
         $user = User::factory()->create();
 
-        $this->actingAs($user)->postJson('/auth/logout');
+        $this->actingAs($user)->postJson('/api/auth/logout');
 
-        $response = $this->getJson('/auth/me');
+        $response = $this->getJson('/api/auth/me');
         $response->assertUnauthorized();
     });
 });

@@ -2,6 +2,38 @@
 
 use App\Models\User;
 
+describe('GET /api/v1/hotels/profile', function () {
+    it('returns hotel profile for authenticated owner', function () {
+        $owner = User::factory()->create();
+        $tenant = createTenant(['owner_id' => $owner->id, 'name' => 'Owner Hotel']);
+
+        $response = $this->actingAs($owner)
+            ->getJson('/api/v1/hotels/profile');
+
+        $response->assertOk()
+            ->assertJson([
+                'tenant_id' => $tenant->id,
+                'owner_id' => $owner->id,
+                'name' => 'Owner Hotel',
+            ]);
+    });
+
+    it('requires authentication', function () {
+        $response = $this->getJson('/api/v1/hotels/profile');
+
+        $response->assertUnauthorized();
+    });
+
+    it('returns not found when authenticated user has no tenant', function () {
+        $owner = User::factory()->create();
+
+        $response = $this->actingAs($owner)
+            ->getJson('/api/v1/hotels/profile');
+
+        $response->assertNotFound();
+    });
+});
+
 describe('PATCH /api/v1/hotels/{hotel_id}', function () {
     it('updates hotel profile as owner', function () {
         $owner = User::factory()->create();

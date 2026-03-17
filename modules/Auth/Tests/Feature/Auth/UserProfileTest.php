@@ -2,7 +2,7 @@
 
 use App\Models\User;
 
-describe('GET /auth/me', function () {
+describe('GET /api/auth/me', function () {
     it('returns authenticated user profile', function () {
         $user = User::factory()->create([
             'first_name' => 'John',
@@ -11,7 +11,7 @@ describe('GET /auth/me', function () {
         ]);
 
         $response = $this->actingAs($user)
-            ->getJson('/auth/me');
+            ->getJson('/api/auth/me');
 
         $response->assertOk()
             ->assertJson([
@@ -23,7 +23,7 @@ describe('GET /auth/me', function () {
     });
 
     it('requires authentication', function () {
-        $response = $this->getJson('/auth/me');
+        $response = $this->getJson('/api/auth/me');
 
         $response->assertUnauthorized();
     });
@@ -32,7 +32,7 @@ describe('GET /auth/me', function () {
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)
-            ->getJson('/auth/me');
+            ->getJson('/api/auth/me');
 
         expect($response->json())->not->toHaveKey('password');
     });
@@ -42,7 +42,7 @@ describe('GET /auth/me', function () {
         $user2 = User::factory()->create(['email' => 'user2@test.com']);
 
         $response = $this->actingAs($user1)
-            ->getJson('/auth/me');
+            ->getJson('/api/auth/me');
 
         $response->assertOk()
             ->assertJson(['email' => 'user1@test.com']);
