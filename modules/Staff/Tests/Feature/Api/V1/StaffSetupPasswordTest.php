@@ -30,7 +30,7 @@ describe('POST /api/v1/staff/setup-password', function () {
 
         expect($staff->is_active)->toBeTrue()
             ->and($staff->activated_at)->not->toBeNull()
-            ->and($staff->setup_token)->toBeIn([null, ''])  // Null or empty = token consumed
+            ->and($staff->setup_token)->toBeNull()
             ->and($staff->setup_token_expires_at)->toBeNull();
 
         // Verify password was hashed correctly
@@ -106,7 +106,7 @@ describe('POST /api/v1/staff/setup-password', function () {
     ]);
 
     it('rejects setup for already activated account', function () {
-        // Active user = already has password and is_active=true, never had setup token
+        // Active user = already has password and is_active=true
         $activeStaff = TenantUser::factory()->create([
             'email' => 'active@hotel.test',
             'is_active' => true,
@@ -121,8 +121,9 @@ describe('POST /api/v1/staff/setup-password', function () {
             'password_confirmation' => 'NewPassword123!',
         ]);
 
-        $response->assertStatus(409)
-            ->assertJson(['error' => 'Account is already activated.']);
+        // Returns generic 400 for security (doesn't reveal account state)
+        $response->assertStatus(400)
+            ->assertJson(['error' => 'Invalid or expired setup token.']);
     });
 
     it('validates required fields and constraints', function (string $field, array $payload) {

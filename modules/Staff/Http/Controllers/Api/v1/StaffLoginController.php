@@ -21,7 +21,7 @@ class StaffLoginController extends Controller
     {
         $dto = StaffLoginDTO::fromArray($request->validated());
 
-        $user = $this->authService->login($dto);
+        $user = $this->authService->login($dto, $request);
 
         if (! $user) {
             return response()->json([
