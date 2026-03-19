@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Modules\Staff\Domain\Services;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Modules\Staff\Domain\DTOs\SetupPasswordDTO;
-use Modules\Staff\Domain\Exceptions\AlreadyActivatedException;
 use Modules\Staff\Domain\Exceptions\InvalidSetupTokenException;
 use Modules\Staff\Domain\Models\TenantUser;
 
@@ -15,36 +16,24 @@ class StaffSetupPasswordService
     /**
      * Handle password setup and account activation.
      *
-     * @throws AlreadyActivatedException
      * @throws InvalidSetupTokenException
      */
     public function handle(SetupPasswordDTO $dto): TenantUser
     {
         $user = TenantUser::where('email', $dto->email)->first();
 
+        // Check if already activated (return generic error for security)
+        if ($user && $user->isActivated()) {
+            Log::warning('Setup password failed: account already activated', [
+                'email' => $dto->email,
+                'ip' => request()->ip(),
+            ]);
+            throw new InvalidSetupTokenException;
+        }
+
         $tokenIsValid = $this->isValidToken($user, $dto->token);
 
-        // If token is invalid, determine the appropriate error
         if (! $tokenIsValid) {
-            if ($user && $user->isActivated()) {
-                // Distinguish: token was consumed vs never had a token
-                // Empty string '' = token was consumed (setup completed)
-                // Null = never had a token (created already active)
-                if ($user->setup_token === '') {
-                    Log::warning('Setup password failed: token already consumed', [
-                        'email' => $dto->email,
-                        'ip' => request()->ip(),
-                    ]);
-                    throw new InvalidSetupTokenException;  // Token consumed (400)
-                }
-
-                Log::warning('Setup password failed: account already activated', [
-                    'email' => $dto->email,
-                    'ip' => request()->ip(),
-                ]);
-                throw new AlreadyActivatedException;  // Never had token (409)
-            }
-
             Log::warning('Setup password failed: invalid or expired token', [
                 'email' => $dto->email,
                 'user_exists' => $user !== null,
@@ -53,15 +42,31 @@ class StaffSetupPasswordService
             throw new InvalidSetupTokenException;
         }
 
-        // Token is valid - proceed with activation
-        // Set setup_token to empty string as marker that token was consumed
-        $user->update([
-            'password' => $dto->password,
-            'is_active' => true,
-            'activated_at' => now(),
-            'setup_token' => '',  // Empty string marks "token was consumed"
-            'setup_token_expires_at' => null,
-        ]);
+        // Token is valid - proceed with atomic activation to prevent race conditions
+        // Use atomic update with WHERE clause matching the token to ensure single-use
+        $hashedToken = hash('sha256', $dto->token);
+        $affected = DB::table('tenant_users')
+            ->where('id', $user->id)
+            ->where('setup_token', $hashedToken)
+            ->whereNotNull('setup_token')
+            ->update([
+                'password' => Hash::make($dto->password),
+                'is_active' => true,
+                'activated_at' => now(),
+                'setup_token' => null,
+                'setup_token_expires_at' => null,
+                'updated_at' => now(),
+            ]);
+
+        // If no rows affected, token was consumed by a concurrent request
+        if ($affected === 0) {
+            Log::warning('Setup password failed: token already consumed (race condition)', [
+                'email' => $dto->email,
+                'user_id' => $user->id,
+                'ip' => request()->ip(),
+            ]);
+            throw new InvalidSetupTokenException;
+        }
 
         Log::info('Staff account activated successfully', [
             'user_id' => $user->id,
