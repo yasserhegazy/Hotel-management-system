@@ -25,7 +25,7 @@ class StaffAuthService
         if (! $user) {
             Log::warning('Staff login failed: user not found', [
                 'email' => $dto->email,
-                'ip' => request()->ip(),
+                'ip' => $request->ip(),
             ]);
 
             return null;
@@ -36,7 +36,7 @@ class StaffAuthService
             Log::warning('Staff login failed: account inactive', [
                 'email' => $dto->email,
                 'user_id' => $user->id,
-                'ip' => request()->ip(),
+                'ip' => $request->ip(),
             ]);
 
             return null;
@@ -47,7 +47,7 @@ class StaffAuthService
             Log::warning('Staff login failed: password not set (pending activation)', [
                 'email' => $dto->email,
                 'user_id' => $user->id,
-                'ip' => request()->ip(),
+                'ip' => $request->ip(),
             ]);
 
             return null;
@@ -58,7 +58,7 @@ class StaffAuthService
             Log::warning('Staff login failed: invalid password', [
                 'email' => $dto->email,
                 'user_id' => $user->id,
-                'ip' => request()->ip(),
+                'ip' => $request->ip(),
             ]);
 
             return null;
@@ -78,7 +78,7 @@ class StaffAuthService
         Log::info('Staff login successful', [
             'user_id' => $user->id,
             'email' => $user->email,
-            'ip' => request()->ip(),
+            'ip' => $request->ip(),
         ]);
 
         return $user->fresh();

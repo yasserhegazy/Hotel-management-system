@@ -49,6 +49,7 @@ class StaffSetupPasswordService
             ->where('id', $user->id)
             ->where('setup_token', $hashedToken)
             ->whereNotNull('setup_token')
+            ->where('setup_token_expires_at', '>', now())
             ->update([
                 'password' => Hash::make($dto->password),
                 'is_active' => true,
