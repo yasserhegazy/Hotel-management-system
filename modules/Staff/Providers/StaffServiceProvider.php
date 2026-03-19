@@ -13,7 +13,9 @@ class StaffServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/../Database/migrations');
 
-        Route::middleware('api')->group(__DIR__.'/../Routes/api.php');
+        Route::middleware('api')
+            ->prefix('api/v1')
+            ->group(__DIR__.'/../Routes/api.php');
 
         $this->mergeConfigFrom(__DIR__.'/../config.php', 'staff');
 
