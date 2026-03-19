@@ -18,7 +18,7 @@ class StaffAuthService
      *
      * @return TenantUser|null Returns the authenticated user or null on failure
      */
-    public function login(StaffLoginDTO $dto): ?TenantUser
+    public function login(StaffLoginDTO $dto, Request $request): ?TenantUser
     {
         $user = TenantUser::where('email', $dto->email)->first();
 
@@ -69,6 +69,11 @@ class StaffAuthService
 
         // Login the user with tenant guard
         Auth::guard('tenant')->login($user);
+
+        // Regenerate session to prevent session fixation attacks
+        if ($request->hasSession()) {
+            $request->session()->regenerate();
+        }
 
         Log::info('Staff login successful', [
             'user_id' => $user->id,
