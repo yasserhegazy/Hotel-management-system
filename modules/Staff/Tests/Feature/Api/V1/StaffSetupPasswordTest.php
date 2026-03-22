@@ -71,7 +71,7 @@ describe('POST /api/v1/staff/setup-password', function () {
             ->assertJson(['error' => 'Invalid or expired setup token.']);
     });
 
-    it('rejects invalid token scenarios', function (string $scenario, callable $setup, array $payload) {
+    it('rejects invalid token scenarios', function (callable $setup, array $payload) {
         $setup();
 
         $response = $this->postJson('/api/v1/staff/setup-password', $payload);
@@ -80,7 +80,6 @@ describe('POST /api/v1/staff/setup-password', function () {
             ->assertJson(['error' => 'Invalid or expired setup token.']);
     })->with([
         'completely wrong token' => [
-            'completely wrong token',
             function () {
                 TenantUser::factory()->inactive()->create(['email' => 'staff@hotel.test']);
             },
@@ -92,7 +91,6 @@ describe('POST /api/v1/staff/setup-password', function () {
             ],
         ],
         'email does not match token owner' => [
-            'email does not match token owner',
             function () {
                 TenantUser::factory()->inactive()->create(['email' => 'real@hotel.test']);
             },
