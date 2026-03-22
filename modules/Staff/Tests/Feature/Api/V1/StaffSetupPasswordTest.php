@@ -74,6 +74,12 @@ describe('POST /api/v1/staff/setup-password', function () {
     it('rejects invalid token scenarios', function (callable $setup, array $payload) {
         $setup();
 
+        if ($scenario === 'email does not match token owner') {
+            $staff = TenantUser::where('email', 'real@hotel.test')->first();
+            $this->assertNotNull($staff, 'Expected setup to create staff with email real@hotel.test');
+            $payload['token'] = $staff->plain_setup_token;
+        }
+
         $response = $this->postJson('/api/v1/staff/setup-password', $payload);
 
         $response->assertStatus(400)
@@ -95,7 +101,7 @@ describe('POST /api/v1/staff/setup-password', function () {
                 TenantUser::factory()->inactive()->create(['email' => 'real@hotel.test']);
             },
             [
-                'token' => bin2hex(random_bytes(32)),
+                'token' => null,
                 'email' => 'different@hotel.test',
                 'password' => 'SecurePass123!',
                 'password_confirmation' => 'SecurePass123!',
