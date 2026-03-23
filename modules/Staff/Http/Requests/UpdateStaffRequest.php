@@ -18,10 +18,10 @@ class UpdateStaffRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => ['sometimes', 'string', 'max:128'],
-            'last_name' => ['sometimes', 'string', 'max:128'],
+            'first_name' => ['sometimes', 'string', 'max:64'],
+            'last_name' => ['sometimes', 'string', 'max:64'],
             'email' => ['sometimes', 'email', 'max:128', Rule::unique('tenant_users', 'email')->ignore($this->route('staff_id'))],
-            'phone' => ['nullable', 'string'],
+            'phone' => ['nullable', 'string', 'max:32'],
             'preferred_language' => ['sometimes', 'string', 'max:5'],
             'roles' => ['sometimes', 'array', 'min:1'],
             'roles.*' => ['required', 'string', Rule::in(array_column(StaffRole::cases(), 'value'))],

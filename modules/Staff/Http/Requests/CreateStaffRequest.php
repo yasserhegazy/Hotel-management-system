@@ -18,10 +18,10 @@ class CreateStaffRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => ['required', 'string', 'max:128'],
-            'last_name' => ['required', 'string', 'max:128'],
+            'first_name' => ['required', 'string', 'max:64'],
+            'last_name' => ['required', 'string', 'max:64'],
             'email' => ['required', 'email', 'max:128', 'unique:tenant_users,email'],
-            'phone' => ['nullable', 'string'],
+            'phone' => ['nullable', 'string', 'max:32'],
             'preferred_language' => ['nullable', 'string', 'max:5'],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['required', 'string', Rule::in(array_column(StaffRole::cases(), 'value'))],
