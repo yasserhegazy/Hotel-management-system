@@ -3,9 +3,7 @@
 namespace Modules\Auth\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 use Modules\Auth\Domain\Services\ResetPasswordService;
 use Modules\Auth\Http\Requests\ResetPasswordRequest;

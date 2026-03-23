@@ -71,8 +71,14 @@ describe('POST /api/v1/staff/setup-password', function () {
             ->assertJson(['error' => 'Invalid or expired setup token.']);
     });
 
-    it('rejects invalid token scenarios', function (string $scenario, callable $setup, array $payload) {
+    it('rejects invalid token scenarios', function ($scenario, callable $setup, array $payload) {
         $setup();
+
+        if ($scenario === 'email does not match token owner') {
+            $staff = TenantUser::where('email', 'real@hotel.test')->first();
+            $this->assertNotNull($staff, 'Expected setup to create staff with email real@hotel.test');
+            $payload['token'] = $staff->plain_setup_token;
+        }
 
         $response = $this->postJson('/api/v1/staff/setup-password', $payload);
 

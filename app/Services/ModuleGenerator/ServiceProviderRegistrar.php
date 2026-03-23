@@ -14,9 +14,9 @@ class ServiceProviderRegistrar
 
     public function register(string $basePath, string $moduleName): bool
     {
-        $providersFile = "{$basePath}/" . self::PROVIDERS_FILE;
+        $providersFile = "{$basePath}/".self::PROVIDERS_FILE;
 
-        if (!$this->fileSystem->exists($providersFile)) {
+        if (! $this->fileSystem->exists($providersFile)) {
             throw new \RuntimeException('Could not find bootstrap/providers.php');
         }
 

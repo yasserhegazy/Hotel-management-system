@@ -33,6 +33,7 @@ class MakeModuleCommand extends Command
             return self::SUCCESS;
         } catch (\RuntimeException $e) {
             $this->error($e->getMessage());
+
             return self::FAILURE;
         }
     }
@@ -40,7 +41,7 @@ class MakeModuleCommand extends Command
     private function displayNextSteps(string $moduleName): void
     {
         $this->newLine();
-        $this->info("Next steps:");
+        $this->info('Next steps:');
         $this->info("1. Start adding your controllers in modules/{$moduleName}/Http/Controllers");
         $this->info("2. Define your models in modules/{$moduleName}/Domain/Models");
         $this->info("3. Add routes in modules/{$moduleName}/Routes/api.php");
