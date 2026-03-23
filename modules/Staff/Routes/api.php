@@ -1,9 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Staff\Http\Controllers\Api\v1\CreateStaffController;
+use Modules\Staff\Http\Controllers\Api\v1\DeactivateStaffController;
+use Modules\Staff\Http\Controllers\Api\v1\ListStaffController;
+use Modules\Staff\Http\Controllers\Api\v1\ResendStaffSetupController;
 use Modules\Staff\Http\Controllers\Api\v1\SetupPasswordController;
+use Modules\Staff\Http\Controllers\Api\v1\ShowStaffController;
 use Modules\Staff\Http\Controllers\Api\v1\StaffLoginController;
 use Modules\Staff\Http\Controllers\Api\v1\StaffLogoutController;
+use Modules\Staff\Http\Controllers\Api\v1\UpdateStaffController;
 
 Route::prefix('staff')->group(function () {
     // Public auth routes
@@ -18,4 +24,14 @@ Route::prefix('staff')->group(function () {
 
     // Public setup password route (outside auth prefix)
     Route::post('/setup-password', SetupPasswordController::class)->name('staff.setup-password');
+
+    // Staff management routes (require auth + manage_staff permission)
+    Route::middleware(['auth:tenant', 'can:manage_staff'])->group(function () {
+        Route::get('/', ListStaffController::class)->name('staff.index');
+        Route::post('/', CreateStaffController::class)->name('staff.store');
+        Route::get('/{staff_id}', ShowStaffController::class)->name('staff.show');
+        Route::patch('/{staff_id}', UpdateStaffController::class)->name('staff.update');
+        Route::delete('/{staff_id}', DeactivateStaffController::class)->name('staff.deactivate');
+        Route::post('/{staff_id}/resend-setup', ResendStaffSetupController::class)->name('staff.resend-setup');
+    });
 });

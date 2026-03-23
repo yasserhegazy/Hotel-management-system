@@ -12,6 +12,7 @@ class StaffServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/../Database/migrations');
+        $this->loadViewsFrom(__DIR__.'/../Resources/views', 'staff');
 
         Route::middleware('api')
             ->prefix('api/v1')
