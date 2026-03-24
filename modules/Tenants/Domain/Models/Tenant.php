@@ -7,17 +7,17 @@ namespace Modules\Tenants\Domain\Models;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\Tenants\Database\Factories\TenantFactory;
 use Modules\Tenants\Domain\Enums\TenantStatus;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
-use Stancl\Tenancy\Database\Models\Domain;
+use Stancl\Tenancy\Database\Concerns\HasDomains;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
 class Tenant extends BaseTenant implements TenantWithDatabase
 {
     use HasDatabase;
+    use HasDomains;
     use HasFactory;
 
     protected $fillable = [
@@ -72,11 +72,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
-    }
-
-    public function domains(): HasMany
-    {
-        return $this->hasMany(Domain::class, 'tenant_id', 'id');
     }
 
     public function location(): BelongsTo

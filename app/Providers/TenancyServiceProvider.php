@@ -13,6 +13,7 @@ use Stancl\Tenancy\Events;
 use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
 use Stancl\Tenancy\Middleware;
+use Stancl\Tenancy\Middleware\InitializeTenancyByRequestData;
 
 class TenancyServiceProvider extends ServiceProvider
 {
@@ -95,6 +96,12 @@ class TenancyServiceProvider extends ServiceProvider
         $this->mapRoutes();
 
         $this->makeTenancyMiddlewareHighestPriority();
+
+        // Allow requests without X-Tenant header to pass through (owners don't
+        // send it — their tenant is resolved via InitializeTenancyForStaff).
+        InitializeTenancyByRequestData::$onFail = function ($e, $request, $next) {
+            return $next($request);
+        };
     }
 
     protected function bootEvents()
