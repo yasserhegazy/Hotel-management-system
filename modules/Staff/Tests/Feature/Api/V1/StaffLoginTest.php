@@ -128,9 +128,24 @@ describe('POST /api/v1/staff/auth/login', function () {
         ]],
     ]);
 
+    it('ignores extra fields like hotel_code', function () {
+        $staff = TenantUser::factory()->create([
+            'email' => 'staff@hotel.test',
+            'password' => 'SecurePassword123!',
+        ]);
+
+        // Extra fields should be silently ignored, login still works
+        $response = $this->postJson('/api/v1/staff/auth/login', [
+            'email' => 'staff@hotel.test',
+            'password' => 'SecurePassword123!',
+            'hotel_code' => 'my-hotel',
+        ]);
+
+        $response->assertOk()
+            ->assertJson(['message' => 'Logged in successfully.']);
+    });
+
     it('authenticates staff only within current tenant context', function () {
-        // Staff exists in tenant database but login is scoped to tenant context
-        // This test verifies the tenant guard properly isolates authentication
         $staff = TenantUser::factory()->create([
             'email' => 'staff@hotel.test',
             'password' => 'SecurePassword123!',
@@ -147,5 +162,20 @@ describe('POST /api/v1/staff/auth/login', function () {
         // Verify authentication is bound to tenant guard, not web guard
         $this->assertAuthenticated('tenant');
         $this->assertGuest('web');
+    });
+
+    it('includes tenant_id key in login response', function () {
+        $staff = TenantUser::factory()->create([
+            'email' => 'staff@hotel.test',
+            'password' => 'SecurePassword123!',
+        ]);
+
+        $response = $this->postJson('/api/v1/staff/auth/login', [
+            'email' => 'staff@hotel.test',
+            'password' => 'SecurePassword123!',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonStructure(['message', 'user', 'tenant_id']);
     });
 });
