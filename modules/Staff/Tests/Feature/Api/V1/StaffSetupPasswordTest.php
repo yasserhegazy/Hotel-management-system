@@ -166,3 +166,75 @@ describe('POST /api/v1/staff/setup-password', function () {
         ]],
     ]);
 });
+
+describe('GET /api/v1/staff/validate-setup-token', function () {
+
+    it('returns valid for a pending account with correct token', function () {
+        $staff = createInactiveStaff(['email' => 'pending@hotel.test']);
+
+        $this->getJson('/api/v1/staff/validate-setup-token?'.http_build_query([
+            'email' => 'pending@hotel.test',
+            'token' => $staff->plain_setup_token,
+        ]))
+            ->assertOk()
+            ->assertJson(['status' => 'valid']);
+    });
+
+    it('returns already_activated for an active account', function () {
+        $staff = createInactiveStaff(['email' => 'setup@hotel.test']);
+
+        // Activate the account first
+        $this->postJson('/api/v1/staff/setup-password', [
+            'token' => $staff->plain_setup_token,
+            'email' => 'setup@hotel.test',
+            'password' => 'SecurePass123!',
+            'password_confirmation' => 'SecurePass123!',
+        ])->assertOk();
+
+        // Now validate — should detect already activated
+        $this->getJson('/api/v1/staff/validate-setup-token?'.http_build_query([
+            'email' => 'setup@hotel.test',
+            'token' => $staff->plain_setup_token,
+        ]))
+            ->assertOk()
+            ->assertJson(['status' => 'already_activated']);
+    });
+
+    it('returns invalid for wrong token', function () {
+        createInactiveStaff(['email' => 'wrongtoken@hotel.test']);
+
+        $this->getJson('/api/v1/staff/validate-setup-token?'.http_build_query([
+            'email' => 'wrongtoken@hotel.test',
+            'token' => 'totally-wrong-token',
+        ]))
+            ->assertStatus(422)
+            ->assertJson(['status' => 'invalid']);
+    });
+
+    it('returns invalid for non-existent email', function () {
+        $this->getJson('/api/v1/staff/validate-setup-token?'.http_build_query([
+            'email' => 'nobody@hotel.test',
+            'token' => 'some-token',
+        ]))
+            ->assertStatus(422)
+            ->assertJson(['status' => 'invalid']);
+    });
+
+    it('returns invalid for expired token', function () {
+        $staff = TenantUser::factory()->expiredToken()->create([
+            'email' => 'expired@hotel.test',
+        ]);
+
+        $this->getJson('/api/v1/staff/validate-setup-token?'.http_build_query([
+            'email' => 'expired@hotel.test',
+            'token' => $staff->plain_setup_token,
+        ]))
+            ->assertStatus(422)
+            ->assertJson(['status' => 'invalid']);
+    });
+
+    it('validates required query params', function () {
+        $this->getJson('/api/v1/staff/validate-setup-token')
+            ->assertStatus(422);
+    });
+});
