@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\Staff\Domain\Services;
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Modules\Staff\Domain\DTOs\SetupPasswordDTO;
@@ -45,8 +44,7 @@ class StaffSetupPasswordService
         // Token is valid - proceed with atomic activation to prevent race conditions
         // Use atomic update with WHERE clause matching the token to ensure single-use
         $hashedToken = hash('sha256', $dto->token);
-        $affected = DB::table('tenant_users')
-            ->where('id', $user->id)
+        $affected = TenantUser::where('id', $user->id)
             ->where('setup_token', $hashedToken)
             ->whereNotNull('setup_token')
             ->where('setup_token_expires_at', '>', now())

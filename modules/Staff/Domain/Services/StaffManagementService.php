@@ -6,6 +6,7 @@ namespace Modules\Staff\Domain\Services;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Modules\Staff\Domain\DTOs\CreateStaffDTO;
@@ -34,9 +35,10 @@ class StaffManagementService
 
     public function create(CreateStaffDTO $dto): TenantUser
     {
-        return DB::transaction(function () use ($dto) {
-            $plainToken = Str::random(32);
+        $plainToken = Str::random(32);
+        $tenantKey = (string) (tenancy()->tenant?->getKey() ?? '');
 
+        $user = DB::transaction(function () use ($dto, $plainToken) {
             $user = $this->repository->create([
                 'first_name' => $dto->firstName,
                 'last_name' => $dto->lastName,
@@ -52,10 +54,18 @@ class StaffManagementService
 
             $user->syncRoles($dto->roles);
 
-            Mail::queue(new StaffSetupMail($user, $plainToken));
-
             return $user->load('roles');
         });
+
+        Mail::queue(new StaffSetupMail($user, $plainToken, $tenantKey));
+
+        Log::info('Staff member created', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'roles' => $dto->roles,
+        ]);
+
+        return $user;
     }
 
     /**
@@ -79,10 +89,18 @@ class StaffManagementService
             }
 
             if (! empty($fields)) {
-                return $this->repository->update($user, $fields);
+                $user = $this->repository->update($user, $fields);
+            } else {
+                $user = $user->fresh()->load('roles');
             }
 
-            return $user->fresh()->load('roles');
+            Log::info('Staff member updated', [
+                'user_id' => $staffId,
+                'fields' => array_keys($fields),
+                'roles_changed' => $dto->roles !== null,
+            ]);
+
+            return $user;
         });
     }
 
@@ -99,6 +117,12 @@ class StaffManagementService
         }
 
         $this->repository->update($user, ['is_active' => false]);
+
+        Log::info('Staff member deactivated', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'deactivated_by' => $actorId,
+        ]);
 
         return $user;
     }
@@ -122,7 +146,12 @@ class StaffManagementService
             'setup_token_expires_at' => now()->addHours(48),
         ]);
 
-        Mail::queue(new StaffSetupMail($user, $plainToken));
+        Mail::queue(new StaffSetupMail($user, $plainToken, (string) (tenancy()->tenant?->getKey() ?? '')));
+
+        Log::info('Staff setup email resent', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+        ]);
 
         return $user;
     }
