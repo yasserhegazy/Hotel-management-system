@@ -20,15 +20,24 @@ class StaffSetupMail extends Mailable
     public function __construct(
         public TenantUser $tenantUser,
         public string $plainToken,
+        public string $tenantId = '',
     ) {
         $this->to($tenantUser->email);
 
         $frontendUrl = rtrim(config('app.frontend_url', 'http://localhost:5173'), '/');
+        $params = [
+            'token' => $this->plainToken,
+            'email' => $this->tenantUser->email,
+        ];
+
+        if ($this->tenantId !== '') {
+            $params['tenant'] = $this->tenantId;
+        }
+
         $this->setupUrl = sprintf(
-            '%s/staff/setup-password?token=%s&email=%s',
+            '%s/staff/setup-password?%s',
             $frontendUrl,
-            urlencode($this->plainToken),
-            urlencode($this->tenantUser->email),
+            http_build_query($params),
         );
     }
 
