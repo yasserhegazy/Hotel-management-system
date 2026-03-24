@@ -45,10 +45,9 @@ class StaffSetupPasswordService
         // Token is valid - proceed with atomic activation to prevent race conditions
         // Use atomic update with WHERE clause matching the token to ensure single-use
         $hashedToken = hash('sha256', $dto->token);
-        $affected = DB::table('tenant_users')
+        $affected = TenantUser::query()
             ->where('id', $user->id)
             ->where('setup_token', $hashedToken)
-            ->whereNotNull('setup_token')
             ->where('setup_token_expires_at', '>', now())
             ->update([
                 'password' => Hash::make($dto->password),
