@@ -17,7 +17,7 @@ class SetupPasswordRequest extends FormRequest
     {
         return [
             'token' => ['required', 'string'],
-            'email' => ['required', 'email', 'max:128'],
+            'email' => ['required', 'email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
     }
