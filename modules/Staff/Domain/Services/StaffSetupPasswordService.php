@@ -41,7 +41,7 @@ class StaffSetupPasswordService
                 ->lockForUpdate()
                 ->where('id', $user->id)
                 ->where('setup_token', $hashedToken)
-                ->where('setup_token_expires_at', '>', $currentTime)
+                ->where('setup_token_expires_at', '>=', $currentTime)
                 ->first();
 
             if (! $lockedUser) {
