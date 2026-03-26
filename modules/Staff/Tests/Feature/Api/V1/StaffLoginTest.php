@@ -122,6 +122,13 @@ describe('POST /api/v1/staff/auth/login', function () {
         'missing email' => ['email', ['password' => 'Password123!']],
         'missing password' => ['password', ['email' => 'test@hotel.test']],
         'invalid email format' => ['email', ['email' => 'not-an-email', 'password' => 'Password123!']],
+        'email exceeds max length' => [
+            'email',
+            [
+                'email' => str_repeat('a', 129) . '@example.com',
+                'password' => 'Password123!',
+            ],
+        ],
     ]);
 
     it('authenticates staff only within current tenant context', function () {
