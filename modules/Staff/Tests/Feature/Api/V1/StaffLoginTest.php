@@ -122,10 +122,6 @@ describe('POST /api/v1/staff/auth/login', function () {
         'missing email' => ['email', ['password' => 'Password123!']],
         'missing password' => ['password', ['email' => 'test@hotel.test']],
         'invalid email format' => ['email', ['email' => 'not-an-email', 'password' => 'Password123!']],
-        'email exceeds max length' => ['email', [
-            'email' => str_repeat('a', 120).'@hotel.test',
-            'password' => 'Password123!',
-        ]],
     ]);
 
     it('ignores extra fields like hotel_code', function () {

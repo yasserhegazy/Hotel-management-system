@@ -23,10 +23,6 @@ class StaffSetupPasswordService
 
         // Check if already activated (return generic error for security)
         if ($user && $user->isActivated()) {
-            Log::warning('Setup password failed: account already activated', [
-                'email' => $dto->email,
-                'ip' => request()->ip(),
-            ]);
             throw new InvalidSetupTokenException;
         }
 
@@ -69,8 +65,6 @@ class StaffSetupPasswordService
 
         Log::info('Staff account activated successfully', [
             'user_id' => $user->id,
-            'email' => $user->email,
-            'ip' => request()->ip(),
         ]);
 
         return $user->fresh();

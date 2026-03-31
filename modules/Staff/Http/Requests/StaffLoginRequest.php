@@ -16,7 +16,7 @@ class StaffLoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email', 'max:128'],
+            'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ];
     }

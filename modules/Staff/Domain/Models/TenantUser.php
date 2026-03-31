@@ -7,6 +7,7 @@ namespace Modules\Staff\Domain\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 use Modules\Staff\Database\Factories\TenantUserFactory;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -46,9 +47,13 @@ class TenantUser extends Authenticatable
             'activated_at' => 'datetime',
             'setup_token_expires_at' => 'datetime',
             'last_login_at' => 'datetime',
-            'password' => 'hashed',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function setPasswordAttribute(?string $value): void
+    {
+        $this->attributes['password'] = $value !== null ? Hash::make($value) : null;
     }
 
     protected static function newFactory(): TenantUserFactory
