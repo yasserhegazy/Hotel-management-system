@@ -72,12 +72,10 @@ describe('POST /api/v1/staff/setup-password', function () {
     });
 
     it('rejects invalid token scenarios', function ($scenario, callable $setup, array $payload) {
-        $setup();
+        $createdStaff = $setup();
 
-        if ($scenario === 'email does not match token owner') {
-            $staff = TenantUser::where('email', 'real@hotel.test')->first();
-            $this->assertNotNull($staff, 'Expected setup to create staff with email real@hotel.test');
-            $payload['token'] = $staff->plain_setup_token;
+        if ($scenario === 'email does not match token owner' && $createdStaff) {
+            $payload['token'] = $createdStaff->plain_setup_token;
         }
 
         $response = $this->postJson('/api/v1/staff/setup-password', $payload);
@@ -89,6 +87,8 @@ describe('POST /api/v1/staff/setup-password', function () {
             'completely wrong token',
             function () {
                 TenantUser::factory()->inactive()->create(['email' => 'staff@hotel.test']);
+
+                return null;
             },
             [
                 'token' => 'this-token-does-not-exist-at-all',
@@ -100,10 +100,10 @@ describe('POST /api/v1/staff/setup-password', function () {
         'email does not match token owner' => [
             'email does not match token owner',
             function () {
-                TenantUser::factory()->inactive()->create(['email' => 'real@hotel.test']);
+                return TenantUser::factory()->inactive()->create(['email' => 'real@hotel.test']);
             },
             [
-                'token' => null,
+                'token' => bin2hex(random_bytes(32)),
                 'email' => 'different@hotel.test',
                 'password' => 'SecurePass123!',
                 'password_confirmation' => 'SecurePass123!',
@@ -127,8 +127,9 @@ describe('POST /api/v1/staff/setup-password', function () {
             'password_confirmation' => 'NewPassword123!',
         ]);
 
-        $response->assertStatus(409)
-            ->assertJson(['error' => 'Account is already activated.']);
+        // Returns generic 400 for security (doesn't reveal account state)
+        $response->assertStatus(400)
+            ->assertJson(['error' => 'Invalid or expired setup token.']);
     });
 
     it('validates required fields and constraints', function (string $field, array $payload) {
