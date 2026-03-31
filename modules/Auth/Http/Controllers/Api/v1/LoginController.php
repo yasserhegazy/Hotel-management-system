@@ -15,8 +15,13 @@ class LoginController extends Controller
             return response()->json(['error' => 'Invalid credentials.'], 401);
         }
 
+        $user = Auth::user();
+
         return response()->json([
-            'user' => Auth::user(),
+            'user' => array_merge($user->toArray(), [
+                'roles' => [],
+                'user_type' => 'owner',
+            ]),
         ]);
     }
 }

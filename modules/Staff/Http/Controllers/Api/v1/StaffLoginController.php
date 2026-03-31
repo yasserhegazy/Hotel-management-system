@@ -32,6 +32,7 @@ class StaffLoginController extends Controller
         return response()->json([
             'message' => 'Logged in successfully.',
             'user' => new StaffUserResource($user),
+            'tenant_id' => tenancy()->tenant?->getKey(),
         ]);
     }
 }

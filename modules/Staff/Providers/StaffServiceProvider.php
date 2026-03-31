@@ -11,7 +11,13 @@ class StaffServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadMigrationsFrom(__DIR__.'/../Database/migrations');
+        // Tenant migrations must only run via `php artisan tenants:migrate`.
+        // Running them here would create tenant_users in the central (saas_central) DB.
+        if (app()->runningUnitTests()) {
+            $this->loadMigrationsFrom(__DIR__.'/../Database/migrations');
+        }
+
+        $this->loadViewsFrom(__DIR__.'/../Resources/views', 'staff');
 
         Route::middleware('api')
             ->prefix('api/v1')

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Staff\Domain\Services;
 
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Modules\Staff\Domain\DTOs\SetupPasswordDTO;
 use Modules\Staff\Domain\Exceptions\InvalidSetupTokenException;
@@ -29,39 +29,36 @@ class StaffSetupPasswordService
         $tokenIsValid = $this->isValidToken($user, $dto->token);
 
         if (! $tokenIsValid) {
+            Log::warning('Setup password failed: invalid or expired token', [
+                'email' => $dto->email,
+                'user_exists' => $user !== null,
+                'ip' => request()->ip(),
+            ]);
             throw new InvalidSetupTokenException;
         }
 
-        // Token is valid - proceed with atomic activation to prevent race conditions.
+        // Token is valid - proceed with atomic activation to prevent race conditions
+        // Use atomic update with WHERE clause matching the token to ensure single-use
         $hashedToken = hash('sha256', $dto->token);
-        $currentTime = now();
+        $affected = TenantUser::where('id', $user->id)
+            ->where('setup_token', $hashedToken)
+            ->whereNotNull('setup_token')
+            ->where('setup_token_expires_at', '>', now())
+            ->update([
+                'password' => Hash::make($dto->password),
+                'is_active' => true,
+                'activated_at' => now(),
+                'setup_token' => null,
+                'setup_token_expires_at' => null,
+                'updated_at' => now(),
+            ]);
 
-        $activated = DB::transaction(function () use ($user, $dto, $hashedToken, $currentTime): bool {
-            $lockedUser = TenantUser::query()
-                ->lockForUpdate()
-                ->where('id', $user->id)
-                ->where('setup_token', $hashedToken)
-                ->where('setup_token_expires_at', '>=', $currentTime)
-                ->first();
-
-            if (! $lockedUser) {
-                return false;
-            }
-
-            $lockedUser->password = $dto->password;
-            $lockedUser->is_active = true;
-            $lockedUser->activated_at = $currentTime;
-            $lockedUser->setup_token = null;
-            $lockedUser->setup_token_expires_at = null;
-            $lockedUser->save();
-
-            return true;
-        });
-
-        // If lock found no matching row, token was consumed by a concurrent request
-        if (! $activated) {
+        // If no rows affected, token was consumed by a concurrent request
+        if ($affected === 0) {
             Log::warning('Setup password failed: token already consumed (race condition)', [
+                'email' => $dto->email,
                 'user_id' => $user->id,
+                'ip' => request()->ip(),
             ]);
             throw new InvalidSetupTokenException;
         }

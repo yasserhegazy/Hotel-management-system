@@ -72,4 +72,19 @@ class TenantUser extends Authenticatable
             && $this->setup_token_expires_at !== null
             && $this->setup_token_expires_at->isFuture();
     }
+
+    public function scopeSearch($query, string $term): void
+    {
+        $query->where(function ($q) use ($term) {
+            $q->where('first_name', 'LIKE', "%{$term}%")
+                ->orWhere('last_name', 'LIKE', "%{$term}%")
+                ->orWhere('email', 'LIKE', "%{$term}%")
+                ->orWhere('phone', 'LIKE', "%{$term}%");
+        });
+    }
+
+    public function scopeActive($query, bool $isActive): void
+    {
+        $query->where('is_active', $isActive);
+    }
 }

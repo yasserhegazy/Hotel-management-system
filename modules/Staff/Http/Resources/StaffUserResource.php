@@ -22,6 +22,7 @@ class StaffUserResource extends JsonResource
             'activated_at' => $this->activated_at?->toISOString(),
             'last_login_at' => $this->last_login_at?->toISOString(),
             'roles' => $this->getRoleNames()->toArray(),
+            'user_type' => 'staff',
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

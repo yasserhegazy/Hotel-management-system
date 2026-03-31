@@ -20,9 +20,15 @@ Route::prefix('auth')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', LogoutController::class)->name('auth.logout');
 
-        // Provided to satisfy the 'prevents access to protected routes after logout' test
         Route::get('/me', function (Request $request) {
-            return $request->user();
+            $user = $request->user();
+
+            return response()->json(
+                array_merge($user->toArray(), [
+                    'roles' => [],
+                    'user_type' => 'owner',
+                ])
+            );
         })->name('auth.me');
     });
 });
